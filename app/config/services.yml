@@ -1,8 +1,5 @@
 # Learn more about services, parameters and containers at
 # https://symfony.com/doc/current/service_container.html
-parameters:
-    #parameter_name: value
-
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -12,7 +9,7 @@ services:
         autoconfigure: true
         # this means you cannot fetch services directly from the container via $container->get()
         # if you need to do this, you can override this setting on individual services
-        public: false
+        public: true
 
     # makes classes in src/AppBundle available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -30,6 +27,9 @@ services:
         tags: ['controller.service_arguments']
 
     # add more services, or override services that need manual wiring
-    # AppBundle\Service\ExampleService:
-    #     arguments:
-    #         $someArgument: 'some_value'
+    AppBundle\Database:
+        bind:
+            $database_host: %database_host%
+            $database_name: %database_name%
+            $database_user: %database_user%
+            $database_password: %database_password%

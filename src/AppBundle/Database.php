@@ -2,16 +2,20 @@
 
 namespace AppBundle;
 
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
 class Database {
 
     public $connection;
 
-    public function __construct() {
-        $servername = 'login-67.hoststar.ch';
-        $dbname = 'inf17d';
-        $user = 'inf17d';
-        $password = 'j5TQh!zmMtqsjY3';
-        $this->connection = new \mysqli($servername, $user, $password, $dbname);
+    public function __construct(string $database_host, string $database_name, string $database_user, string $database_password) {
+
+        $this->connection = new \mysqli(
+            $database_host,
+            $database_user,
+            $database_password,
+            $database_name
+        );
 
         if($this->connection->connect_error) {
             die('Connection failed: ' . $this->connection->connect_error);

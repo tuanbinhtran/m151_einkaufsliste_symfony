@@ -17,9 +17,8 @@ class ItemController extends AbstractController
     /**
      * @Route("/list", name="list")
      */
-    public function listAction(Request $request)
+    public function listAction(Request $request, Database $db)
     {
-        $db = new Database();
         $sql = "SELECT ItemId, Name, Anzahl FROM tut_items";
         $items = [];
 
@@ -35,7 +34,7 @@ class ItemController extends AbstractController
     /**
      * @Route("/items/add", methods={"POST"})
      */
-    public function addAction(Request $request)
+    public function addAction(Request $request, Database $db)
     {
         if (!$request->isMethod("POST")) {
             return new Response("Invalid method", 405);
@@ -48,7 +47,6 @@ class ItemController extends AbstractController
             return new Response("Error: invalid input", 400);
         }
 
-        $db = new Database();
         $query = "INSERT INTO tut_items (Name, Anzahl) VALUES (?, ?)";
         $statement = $db->connection->prepare($query);
         $statement->bind_param("si", $name, $anzahl);
@@ -65,7 +63,7 @@ class ItemController extends AbstractController
     /**
      * @Route("/items/remove/{id}")
      */
-    public function removeAction(Request $request)
+    public function removeAction(Request $request, Database $db)
     {
         $itemId = $request->attributes->get('id');
 
@@ -73,7 +71,6 @@ class ItemController extends AbstractController
             return new Response("Error: invalid input", 400);
         }
 
-        $db = new Database();
         $query = "DELETE FROM tut_items WHERE ItemId = ?";
         $statement = $db->connection->prepare($query);
         $statement->bind_param("i", $itemId);
@@ -90,7 +87,7 @@ class ItemController extends AbstractController
     /**
      * @Route("/items/edit/{id}", methods={"GET"})
      */
-    public function editFormAction(Request $request)
+    public function editFormAction(Request $request, Database $db)
     {
         if (!$request->isMethod("GET")) {
             return new Response("Invalid method", 405);
@@ -102,7 +99,6 @@ class ItemController extends AbstractController
             return new Response("Error: invalid input", 400);
         }
 
-        $db = new Database();
         $query = "SELECT ItemId, Name, Anzahl FROM tut_items WHERE ItemId = ? LIMIT 1";
         $statement = $db->connection->prepare($query);
         $statement->bind_param("i", $itemId);
@@ -124,7 +120,7 @@ class ItemController extends AbstractController
     /**
      * @Route("/items/edit/{id}", methods={"POST"})
      */
-    public function editFormActionPost(Request $request)
+    public function editFormActionPost(Request $request, Database $db)
     {
         if (!$request->isMethod("POST")) {
             return new Response("Invalid method", 405);
@@ -138,7 +134,6 @@ class ItemController extends AbstractController
             return new Response("Error: invalid input", 400);
         }
 
-        $db = new Database();
         $query = "UPDATE tut_items SET Name = ?, Anzahl = ? WHERE ItemId = ?";
         $statement = $db->connection->prepare($query);
         $statement->bind_param("sii", $name, $anzahl, $itemId);
