@@ -19,6 +19,10 @@ class ItemController extends AbstractController
      */
     public function listAction(Request $request, Database $db)
     {
+        if (!$this->checkAuth($request)) {
+            return $this->redirect('/login');
+        }
+
         $sql = "SELECT ItemId, Name, Anzahl FROM tut_items";
         $items = [];
 
@@ -28,6 +32,7 @@ class ItemController extends AbstractController
 
         return $this->render('item/list.html.php', [
             'items' => $items,
+            'username' => $request->getSession()->get('username')
         ]);
     }
 
@@ -36,6 +41,10 @@ class ItemController extends AbstractController
      */
     public function addAction(Request $request, Database $db)
     {
+        if (!$this->checkAuth($request)) {
+            return $this->redirect('/login');
+        }
+
         if (!$request->isMethod("POST")) {
             return new Response("Invalid method", 405);
         }
@@ -65,6 +74,10 @@ class ItemController extends AbstractController
      */
     public function removeAction(Request $request, Database $db)
     {
+        if (!$this->checkAuth($request)) {
+            return $this->redirect('/login');
+        }
+
         $itemId = $request->attributes->get('id');
 
         if (!is_numeric($itemId) || !$itemId) {
@@ -89,6 +102,10 @@ class ItemController extends AbstractController
      */
     public function editFormAction(Request $request, Database $db)
     {
+        if (!$this->checkAuth($request)) {
+            return $this->redirect('/login');
+        }
+
         if (!$request->isMethod("GET")) {
             return new Response("Invalid method", 405);
         }
@@ -145,5 +162,11 @@ class ItemController extends AbstractController
         } else {
             return new Response("Error: " . $query . "<br>" . $db->connection->error);
         }
+    }
+
+    private function checkAuth(Request $request) {
+        $session = $request->getSession();
+
+        return $session->has('userId');
     }
 }

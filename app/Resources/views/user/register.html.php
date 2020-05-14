@@ -2,26 +2,26 @@
 
 {% block body %}
 
-<h2 class="center-align">Edit</h2>
+<h2 class="center-align">Register</h2>
 
 <div class="row">
-    <form class="col s12" action="/items/edit/{{item.ItemId}}" method="post" onsubmit="onSubmit()">
+    <form class="col s12" action="/register" method="post" onsubmit="onSubmit()">
         <div class="row">
             <div class="input-field col s12">
-                <input id="anzahl" type="number" class="validate" name="anzahl" value="{{item.Anzahl}}">
-                <label for="anzahl">Anzahl</label>
+                <input id="username" type="text" class="validate" name="username">
+                <label for="username">Username</label>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <input id="name" type="text" class="validate" name="name" value="{{item.Name}}" data-length="255">
-                <label for="name">Name</label>
+                <input id="password" type="password" class="validate" name="password" data-length="255">
+                <label for="password">Password</label>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12">
                 <div class="right-align">
-                    <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+                    <button class="btn waves-effect waves-light" type="submit" name="action">Register
                         <i class="material-icons right">send</i>
                     </button>
                 </div>
@@ -37,9 +37,5 @@
 {% endblock %}
 
 {% block javascripts %}
-
-function onSubmit() {
-    console.log('test');
-}
 
 {% endblock %}
