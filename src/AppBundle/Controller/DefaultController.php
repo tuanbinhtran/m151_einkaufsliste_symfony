@@ -14,6 +14,6 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request)
     {
-        return new Response("Hello World");
+        return $this->redirectToRoute('list');
     }
 }

@@ -30,6 +30,22 @@
     </form>
 </div>
 
+<div class="row">
+    <form action="/comments/add/{{item.ItemId}}" method="post">
+        <div class="input-field col s10">
+            <input id="comment" type="text" class="validate" name="comment" data-length="255">
+            <label for="comment">Comment</label>
+        </div>
+        <div class="input-field col s2">
+            <div class="right-align">
+                <button class="btn waves-effect waves-light" type="submit" name="action">Send
+                    <i class="material-icons right">send</i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
 {% endblock %}
 
 {% block stylesheets %}
@@ -39,7 +55,7 @@
 {% block javascripts %}
 
 function onSubmit() {
-    console.log('test');
+console.log('test');
 }
 
 {% endblock %}

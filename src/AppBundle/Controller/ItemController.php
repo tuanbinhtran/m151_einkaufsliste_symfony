@@ -11,6 +11,8 @@ use Doctrine\ORM\EntityManagerInterace;
 use AppBundle\Database;
 use stdClass;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use AppBundle\Controller\CommentController;
+use DateTime;
 
 class ItemController extends AbstractController
 {
@@ -34,6 +36,63 @@ class ItemController extends AbstractController
             'items' => $items,
             'username' => $request->getSession()->get('username')
         ]);
+    }
+
+    /**
+     * @Route("/items/detail/{itemId}", name="detail", methods={"GET"})
+     */
+    public function detailAction(Request $request, Database $db)
+    {
+        if (!$this->checkAuth($request)) {
+            return $this->redirect('/login');
+        }
+
+        $itemId = $request->attributes->get('itemId');
+
+        if (!is_numeric($itemId) || !$itemId) {
+            return new Response("Error: invalid input", 400);
+        }
+
+        $query = "SELECT ItemId, Name, Anzahl FROM tut_items WHERE ItemId = ? LIMIT 1";
+        $statement = $db->connection->prepare($query);
+        $statement->bind_param("i", $itemId);
+
+        $queryComment =
+            "SELECT u.Username, c.UserId, c.Comment, c.Timestamp FROM tut_comments c
+            JOIN tut_user u ON u.UserId = c.UserId
+            WHERE c.ItemId = ?
+            ORDER BY c.Timestamp DESC";
+        $commentStatement = $db->connection->prepare($queryComment);
+        $commentStatement->bind_param("i", $itemId);
+        $comments = [];
+
+        if ($commentStatement->execute() === TRUE) {
+            foreach ($commentStatement->get_result() as $row) {
+                $timestamp = DateTime::createFromFormat("Y-m-d H:i:s", $row['Timestamp']);
+                $date = $timestamp->format('d. M Y');
+                $time = $timestamp->format('H:i');
+
+                $row['Timestamp'] = $date . ' um ' . $time;
+                array_push($comments, $row);
+            }
+        } else {
+            return new Response("Error: " . $queryComment . "<br>" . $db->connection->error);
+        }
+
+        if ($statement->execute() === TRUE) {
+            $result = $statement->get_result();
+            $item = $result->fetch_object();
+            $statement->free_result();
+            $statement->close();
+
+            return $this->render('item/detail.html.php', [
+                'item' => $item,
+                'comments' => $comments,
+                'userId' => $request->getSession()->get('userId')
+            ]);
+        } else {
+            return new Response("Error: " . $query . "<br>" . $db->connection->error);
+        }
     }
 
     /**
@@ -100,14 +159,10 @@ class ItemController extends AbstractController
     /**
      * @Route("/items/edit/{id}", methods={"GET"})
      */
-    public function editFormAction(Request $request, Database $db)
+    public function editAction(Request $request, Database $db)
     {
         if (!$this->checkAuth($request)) {
             return $this->redirect('/login');
-        }
-
-        if (!$request->isMethod("GET")) {
-            return new Response("Invalid method", 405);
         }
 
         $itemId = $request->attributes->get('id');
@@ -127,7 +182,7 @@ class ItemController extends AbstractController
             $statement->close();
 
             return $this->render('item/edit.html.php', [
-                'item' => $item,
+                'item' => $item
             ]);
         } else {
             return new Response("Error: " . $query . "<br>" . $db->connection->error);

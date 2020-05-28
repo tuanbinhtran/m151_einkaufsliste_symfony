@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h2 class="center-align">Login</h2>
+
+<div class="row">
+    <form id="loginForm" class="col s12" action="/login" method="post" onsubmit="onSubmit()">
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="username" type="text" class="validate" name="username">
+                <label for="username">Username</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="password" type="password" class="validate" name="password" data-length="255">
+                <label for="password">Password</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <div class="right-align">
+                    <button class="btn waves-effect waves-light" type="submit" name="action">
+                        <i class="material-icons left">lock</i>
+                        Login
+                    </button>
+                    {# <button class="btn waves-effect waves-light" onclick="onRegister">
+                        <i class="material-icons left">how_to_reg</i>
+                        Register
+                    </button> #}
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% if errors is defined and errors is iterable %}
+<div class="row">
+    {% for error in errors %}
+        <div class="col s12">
+            <div class="card-panel red lighten-4">
+                <span class="red-text text-darken-4">{{error}}</span>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block stylesheets %}
+
+{% endblock %}
+
+{% block javascripts %}
+    var loginForm = document.getElementById('loginForm');
+
+    function onSubmit() {
+        console.log(loginForm);
+    }
+
+{% endblock %}

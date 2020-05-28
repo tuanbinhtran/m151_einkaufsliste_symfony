@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use AppBundle\Database;
-use stdClass;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AuthController extends AbstractController
 {
     private $salt = "3sAxVggAfGkzxkh)zP@4.uI8Gitmi0";
+    private $db;
 
     /**
      * @Route("/register", methods={"POST"});
@@ -26,18 +26,30 @@ class AuthController extends AbstractController
             return new Response("Error: invalid input", 400);
         }
 
+        if (trim($username) == false || trim($password) == false) {
+            return $this->render('user/register.html.twig', [
+                'errors' => [
+                    'Username and/or password cannot be empty.'
+                ]
+            ]);
+        }
+
         $password = md5($this->salt . $password);
 
         $query = "INSERT INTO tut_user (Username, Password) VALUES (?, ?)";
         $statement = $db->connection->prepare($query);
         $statement->bind_param("ss", $username, $password);
 
-        if ($statement->execute() === TRUE) {
+        if ($statement->execute()) {
             $statement->free_result();
             $statement->close();
-            return $this->redirectToRoute('/login');
+            return $this->redirect('/login');
         } else {
-            return new Response("Error: " . $query . "<br>" . $db->connection->error);
+            return $this->render('user/register.html.twig', [
+                'errors' => [
+                    'Username already exists.'
+                ]
+            ]);
         }
     }
 
@@ -50,7 +62,7 @@ class AuthController extends AbstractController
             $this->redirectToRoute('/list');
         }
 
-        return $this->render('user/register.html.php');
+        return $this->render('user/register.html.twig');
     }
 
 
@@ -70,7 +82,7 @@ class AuthController extends AbstractController
 
         $password = md5($this->salt . $password);
 
-        $query = "SELECT UserId FROM tut_user WHERE username = ? AND password = ?";
+        $query = "SELECT UserId FROM tut_user WHERE Username = ? AND Password = ?";
         $statement = $db->connection->prepare($query);
         $statement->bind_param("ss", $username, $password);
 
@@ -88,6 +100,12 @@ class AuthController extends AbstractController
                 $session->set('username', $username);
 
                 return $this->redirectToRoute('list');
+            } else {
+                return $this->render('user/login.html.twig', [
+                    'errors' => [
+                        'User doesn\'t exist.'
+                    ]
+                ]);
             }
         } else {
             return new Response("Error: " . $query . "<br>" . $db->connection->error);
@@ -104,11 +122,11 @@ class AuthController extends AbstractController
             $this->redirectToRoute('/list');
         }
 
-        return $this->render('user/login.html.php');
+        return $this->render('user/login.html.twig');
     }
 
     /**
-     * @Route("/logoute")
+     * @Route("/logout")
      */
     public function logoutAction(Request $request)
     {
@@ -123,6 +141,28 @@ class AuthController extends AbstractController
         $session = $request->getSession();
 
         return $session->has('userId');
+    }
+
+    private function usernameExists(Database $db, string $username) {
+        $query = 'SELECT Username FROM tut_user WHERE Username = ?';
+        $statement = $db->connection->prepare($query);
+        $statement->bind_param('s', $username);
+
+        if ($statement->execute()) {
+            $result = $statement->get_result();
+            $result = $result->fetch_assoc();
+
+            $statement->free_result();
+            $statement->close();
+
+            if ($result === null) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
 
